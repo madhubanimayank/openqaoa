@@ -1,6 +1,7 @@
 from typing import List, Callable, Optional, Union, Dict
 from copy import deepcopy
-import numpy as np
+import numpy as np 
+import matplotlib.pyplot as plt 
 
 from .qaoa_result import QAOAResult
 from ..workflow_properties import CircuitProperties
