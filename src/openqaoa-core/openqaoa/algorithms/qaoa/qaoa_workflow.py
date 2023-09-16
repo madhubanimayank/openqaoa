@@ -1,12 +1,14 @@
 from typing import List, Callable, Optional, Union, Dict
 from copy import deepcopy
-import numpy as np
+import numpy as np 
+import matplotlib.pyplot as plt 
 
 from .qaoa_result import QAOAResult
 from ..workflow_properties import CircuitProperties
 from ..baseworkflow import Workflow, check_compiled
 from ...backends import QAOABackendAnalyticalSimulator
-from ...backends.devices_core import DeviceLocal
+from ...backends.devices_core import DeviceLocal 
+from .qaoa_benchmark import QAOABenchmark
 from ...backends.qaoa_backend import get_qaoa_backend
 from ...problems import QUBO
 from ...qaoa_components import (
@@ -183,7 +185,46 @@ class QAOA(Workflow):
                 raise ValueError("Specified argument is not supported by the circuit")
         self.circuit_properties = CircuitProperties(**kwargs)
 
-        return None
+        return None 
+    def plot_optimization_routine(self, cost_landscape="main", angles=None):
+        if angles is None:
+            angles = self.result.optimized.get("angles")
+
+        # Check if angles list exists and has an even number of elements
+        if angles is None:
+            raise ValueError("Angles data is missing.")
+        if len(angles) % 2 != 0:
+            raise ValueError("The 'angles' list must have an even number of elements.")
+
+        # Split the angles list into two parts
+        midpoint = len(angles) // 2
+        parameter_0 = angles[:midpoint]
+        parameter_1 = angles[midpoint:]
+
+        # Create the plot using self.QAOABenchmark().plot(main=True) or self.QAOABenchmark().plot(reference=True)
+        fig, ax = plt.figure(figsize=(8, 4))
+        benchmark_plot = self.QAOABenchmark().plot(ax=ax, main=cost_landscape == "main", reference=cost_landscape == "reference", verbose=False)
+        
+        # Define colors for the line and points
+        line_color = 'blue'
+        first_point_color = 'red'  # Color for the first point
+        other_point_color = 'green'  # Color for other points
+        
+        # Add points from parameter_0 and parameter_1 with different colors
+        ax.plot(parameter_0[0], parameter_1[0], marker='o', linestyle='-', color=first_point_color, label="First Point")
+        ax.plot(parameter_0[1:], parameter_1[1:], marker='o', linestyle='-', color=line_color, label="Parameter Line")
+        ax.scatter(parameter_0[0], parameter_1[0], marker='o', color=first_point_color, label="First Point", s=50)  # Specify point color and size
+        ax.scatter(parameter_0[1:], parameter_1[1:], marker='o', color=other_point_color, label="Other Points", s=50)  # Specify point color and size
+        
+        # Set the labels and title
+        ax.set_xlabel("parameter_0")
+        ax.set_ylabel("parameter_1")
+        ax.set_title(f"Optimization Routine ({cost_landscape} cost landscape)")
+        ax.grid(True)
+
+        # Show the combined plot
+        plt.show()
+
 
     def compile(
         self,
