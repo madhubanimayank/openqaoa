@@ -23,7 +23,7 @@ setup(
     python_requires=">=3.8, <3.11",
     version=version,
     author="Entropica Labs",
-    packages=["openqaoa-core"],
+    packages=["openqaoa"],
     entry_points={"openqaoa.plugins": []},
     url="https://github.com/entropicalabs/openqaoa",
     install_requires=requirements,
